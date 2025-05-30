@@ -2,27 +2,30 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\Skpd;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
 
 class SkpdForm extends Form
 {
-    #[Validate]
-    public $skpd, $anggaran, $realisasi, $anggaran_spesifik, $realisasi_spesifik;
+    #[Validate('required')]
+    public $perangkat_daerah_pelaksana = '';
 
-    protected function rules()
+    #[Validate('required')]
+    public $skpd = '';
+
+    protected function messages()
     {
         return [
-            'skpd' => 'required|min:3',
-            'anggaran' => 'required|digits:5|numeric',
-            'realisasi' => 'required|min:3',
-            'anggaran_spesifik' => 'required|digits:5|numeric',
-            'realisasi_spesifik' => 'required|digits:5|numeric',
+            'skpd.required' => 'SKPD wajib diisi',
+            'perangkat_daerah_pelaksana.required' => 'Perangkat Daerah Pelaksana wajib diisi',
         ];
     }
 
     public function store()
     {
         $this->validate();
+        Skpd::create($this->all());
+        $this->reset();
     }
 }

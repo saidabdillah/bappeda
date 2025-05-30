@@ -1,15 +1,8 @@
 <?php
 
-use App\Exports\MatrikExport;
-use App\Livewire\Settings\Appearance;
-use App\Livewire\Settings\Password;
-use App\Livewire\Settings\Profile;
-use App\Livewire\Skbd\Karyawan;
-use App\Livewire\AdminCreate\Matriks;
-use App\Livewire\AdminCreate\CreateMatriks;
+use App\Livewire\Program\CreateProgram;
 use App\Livewire\Skpd\Entry;
 use Illuminate\Support\Facades\Route;
-use Maatwebsite\Excel\Facades\Excel;
 
 Route::get('/', function () {
     return redirect('login');
@@ -20,25 +13,29 @@ Route::view('dashboard', 'dashboard')
     ->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
-
-    Route::prefix('skbd')->group(function () {
-        Route::get('matriks', Matriks::class)->name('matriks.index');
-        Route::get('matriks/create', CreateMatriks::class)->name('matriks.create');
-        Route::get('karyawan', Karyawan::class)->name('karyawan.index');
-        Route::get('entry', Entry::class)->name('entry.create');
-        Route::post('entry', Entry::class)->name('entry.create');
-
-        Route::get('matriks/export', function () {
-            return Excel::download(new MatrikExport, 'matrik.xlsx');
-        })->name('matrik.export');
+    Route::prefix('matriks')->group(function () {
+        Route::group(['middleware' => ['role:admin|user']], function () {
+            Route::view('', 'matrik')->name('matriks.index');
+            Route::View('create', 'create-matrik')->name('matriks.create');
+        });
     });
 
+    Route::prefix('skpd')->group(function () {
+        Route::get('create', Entry::class)->name('entry.create')->middleware('role:admin');
+    });
 
-    Route::redirect('settings', 'settings/profile');
+    Route::prefix('program')->group(function () {
+        Route::get('create', CreateProgram::class)->name('program.create')->middleware('role:admin');
+    });
 
-    Route::get('settings/profile', Profile::class)->name('settings.profile');
-    Route::get('settings/password', Password::class)->name('settings.password');
-    Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+    Route::view('users', 'users')->name('users')->middleware('role:admin');
+
+
+    // Route::redirect('settings', 'settings/profile');
+
+    // Route::get('settings/profile', Profile::class)->name('settings.profile');
+    // Route::get('settings/password', Password::class)->name('settings.password');
+    // Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
 require __DIR__ . '/auth.php';

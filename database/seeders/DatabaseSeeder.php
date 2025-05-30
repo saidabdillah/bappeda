@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\kegiatan;
+use App\Models\Matrik;
+use App\Models\Program;
 use App\Models\Skpd;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -20,6 +22,16 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => bcrypt('password'),
         ]);
+
+
+        $this->call([
+            // SkpdSeeder::class,
+            // ProgramSeeder::class,
+            // MatrikSeeder::class,
+            RolePermissionSeeder::class
+        ]);
+        $admin->assignRole('admin');
+
 
         // $user = User::create([
         //     'skpd_id' => $tujuan_1->id,

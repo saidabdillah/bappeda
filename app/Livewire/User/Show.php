@@ -1,19 +1,17 @@
 <?php
 
-namespace App\Livewire\Auth;
+namespace App\Livewire\User;
 
 use App\Models\Skpd;
-use App\Models\User;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Livewire\Attributes\Layout;
+use App\Models\User;
+
 use Livewire\Component;
 
-#[Layout('components.layouts.auth')]
-class Register extends Component
+class Show extends Component
 {
+
     public string $name = '';
 
     public string $email = '';
@@ -22,18 +20,15 @@ class Register extends Component
 
     public string $password_confirmation = '';
 
-    public int $id_skpd = 0;
+    public $id_skpd;
 
     public $skpd;
 
-    public function mount()
-    {
-        $this->skpd = Skpd::all();
-    }
 
-    /**
-     * Handle an incoming registration request.
-     */
+    public function render()
+    {
+        return view('livewire.user.show');
+    }
 
     public function register(): void
     {
@@ -46,15 +41,21 @@ class Register extends Component
 
         $validated['password'] = Hash::make($validated['password']);
 
-        // event(new Registered(($user = User::create($validated))));
         $user = User::create($validated);
 
-        Skpd::where('id', $this->id_skpd)->update(['id_user' => $user->id]);
-
-        // Auth::login($user);
-
         $user->assignRole('user');
+        $this->modal('add-user')->close();
+        $this->reset();
+        $this->dispatch('notif', message: 'User berhasil dibuat', type: 'success', title: 'Berhasil');
+    }
 
-        // $this->redirect(route('dashboard', absolute: false), navigate: true);
+    protected function messages()
+    {
+        return [
+            'name.required' => 'Nama wajib diisi',
+            'email.required' => 'Email wajib diisi',
+            'password.required' => 'Password wajib diisi',
+            'id_skpd.required' => 'SKPD wajib dipilih',
+        ];
     }
 }
